@@ -1,56 +1,64 @@
 # Pair Kerning
 
-HTML用の簡易な文字詰めスクリプトです。
+Simple JavaScript library for kerning HTML.
 
-文字のペアと間隔を指定するとSpanタグを挿入して文字詰めをします。
+Specify pairs of characters and width, and Span tags will be inserted to kern them.
 
-### 使用法
+*Read this in other language: [日本語](README.ja.md)
+
+### Usage
 ----
 
-文字詰めするペアと間隔(em)をあらかじめ設定
+Firstly specify pairs of characters to kern and width(em) between them.
 
 ```
 var pairs = [
-        ["あい", 0.1], //特定の文字の組み合わせの例
-        [".「", -0.05], //任意の文字＋特定の文字の例
-        ["[^\x01-\x7E\xA1-\xDF][a-zA-Z]", 0.1], //範囲指定の例（全角文字＋アルファベット）
-        ..
+        ["JL", 0.1], //Example of specific character combination
+        [".@", -0.05], //Example of using wild card + specific character
+        ["[^\x01-\x7E\xA1-\xDF][a-zA-Z]", 0.1], //Example of range specification(double byte character + alphabet)
     ];
 ```
 
-適用するクラス名を指定して呼び出す
+Specify the class name to be applied and call pairKern()
 
 ```
 window.onload = function() {
     pairKern("targetClassName", pairs);
 }
 ```
-### 記述法
+
+### Writing the Pairs
 ----
-ペアの指定にはJavaScriptの正規表現の特殊文字が使用できます。
 
-ただし一文字にマッチする表現×二文字分である必要があります。
-```
-var pairs = [
-        ["[^あ].", 0.1], //特定の文字以外の一文字＋任意の一文字の例（有効）
-        ["あ{2,}.", 0.1] //二文字以上にマッチする表現を含む（無効）
-    ];
-```
-特殊文字を非特殊文字として扱う場合、バックスラッシュ×２が必要です。
-```
-var pairs = [
-        [".\\(", 0.1] //任意の文字＋左括弧の例
-    ];
-```
+You can use Javascript regular expressions to specify the pairs.
 
-文字列が複数のペアにマッチする場合、リストの末尾に近い設定のみ適用されます。
+However, use an expression that specifies one character for each pair.
 
 ```
 var pairs = [
-        ["[a-zA-Z][\u3041-\u3096]", 0.1], //範囲指定の例（アルファベット＋ひらがな）
-        ["L[\u3041-\u3096]", 0.05] //L＋ひらがなの場合のみ0.05em
+        ["[^A].", 0.1], //Example of any character except specific character + wildcard (valid)
+        ["A{2,}.", 0.1] //Example of specifying 2 or more characters (invalid)
     ];
 ```
-### その他
+
+When handling a regular character as a non-special character, \\\\ (2 backlash) is necessary.
+
+```
+var pairs = [
+        [".\\(", 0.1] //Example of wildcard + left bracket
+    ];
+```
+
+If the string matches multiple defined pairs, only pair close to the tail of the array is applied.
+
+```
+var pairs = [
+        ["[a-zA-Z][\u3041-\u3096]", 0.1], //Example of range specification(alphabet and Hiragana)
+        ["L[\u3041-\u3096]", 0.05] //Only in case of L + Hiragana, width is 0.05em
+    ];
+```
+
+### Others
 ----
-Spanタグを挿入するため、CSSセレクタ等を使用する場合はノードツリーの変化に注意
+
+When using CSS selectors, please note the changes in the node tree since the library inserts Span tags and changes it.
